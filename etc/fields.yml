@@ -1,0 +1,16 @@
+- key: cmkbeat
+  title: cmkbeat
+  description: Retrieves host status from MK Livestatus (Check_MK)
+  fields:
+    - name: error
+      type: text
+    - name: host
+      type: text
+    - name: description
+      type: text
+    - name: state
+      type: integer
+    - name: output
+      type: text
+    - name: perfdata
+      type: text

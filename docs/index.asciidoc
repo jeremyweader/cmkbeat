@@ -1,0 +1,5 @@
+= Cmkbeat Docs
+
+Welcome to the Cmkbeat documentation.
+
+

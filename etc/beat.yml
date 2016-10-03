@@ -1,0 +1,4 @@
+cmkbeat:
+  period: 30s
+  cmkHost: "192.168.0.19:6557"
+  

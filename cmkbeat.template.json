@@ -1,0 +1,74 @@
+{
+  "mappings": {
+    "_default_": {
+      "_all": {
+        "norms": false
+      },
+      "_meta": {
+        "version": "1.0-alpha1"
+      },
+	  "numeric_detection": true,
+      "dynamic_templates": [
+        {
+          "fields": {
+            "mapping": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "match_mapping_type": "string",
+            "path_match": "fields.*"
+          }
+        }
+      ],
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "beat": {
+          "properties": {
+            "hostname": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            },
+            "name": {
+              "ignore_above": 1024,
+              "type": "keyword"
+            }
+          }
+        },
+        "description": {
+          "norms": false,
+          "type": "text"
+        },
+        "error": {
+          "norms": false,
+          "type": "text"
+        },
+        "host": {
+          "norms": false,
+          "type": "text"
+        },
+        "output": {
+          "norms": false,
+          "type": "text"
+        },
+        "perfdata": {
+          "norms": false,
+          "type": "text"
+        },
+        "state": {
+          "type": "long"
+        },
+        "tags": {
+          "ignore_above": 1024,
+          "type": "keyword"
+        }
+      }
+    }
+  },
+  "order": 0,
+  "settings": {
+    "index.refresh_interval": "5s"
+  },
+  "template": "livestatus-*"
+}

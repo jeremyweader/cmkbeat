@@ -1,0 +1,10 @@
+package: github.com/jeremyweader/cmkbeat
+import:
+- package: github.com/elastic/beats
+  version: ~5.0.0-beta1
+  subpackages:
+  - libbeat/beat
+  - libbeat/common
+  - libbeat/logp
+  - libbeat/publisher
+- package: github.com/vbatoufflet/go-livestatus

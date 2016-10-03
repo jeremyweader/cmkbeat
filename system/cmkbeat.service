@@ -1,0 +1,11 @@
+[Unit]
+Description=cmkbeat
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/share/cmkbeat/bin/cmkbeat -c /etc/cmkbeat/cmkbeat.yml -path.home /usr/share/cmkbeat -path.config /etc/cmkbeat -path.data /var/lib/cmkbeat -path.logs /var/log/cmkbeat
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
