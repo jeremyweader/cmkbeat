@@ -11,8 +11,7 @@ import (
 	"github.com/elastic/beats/libbeat/publisher"
 
 	"github.com/jeremyweader/cmkbeat/config"
-
-	livestatus "github.com/vbatoufflet/go-livestatus"
+	"github.com/jeremyweader/go-livestatus"
 )
 
 type Cmkbeat struct {
@@ -61,17 +60,32 @@ func (bt *Cmkbeat) Stop() {
 
 func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	
-	defer func() {
-		if err := recover(); err != nil {
-			logp.Warn("Error: %s", err)
-		}
-    }()
+//	defer func() {
+//		if err := recover(); err != nil {
+//			logp.Warn("Error: %s", err)
+//		}
+//    }()
 	
     start := time.Now()
-
-    l := livestatus.NewLivestatus("tcp", lshost)
-    q := l.Query("services")
-    q.Columns("host_name", "description", "state", "plugin_output", "perf_data")
+	
+	var host string = lshost
+	var query string = bt.config.Query
+	var columns []string = bt.config.Columns
+	var filter string = bt.config.Filter
+	var metrics bool = bt.config.Metrics
+	
+	logp.Info("------Config-------")
+	logp.Info("Host: %s", host)
+	logp.Info("Query: %s", query)
+	logp.Info("Columns: %s", columns)
+	logp.Info("Filter: %s", filter)
+	logp.Info("Metrics: %s", metrics)
+	logp.Info("--------------")
+	
+    l := livestatus.NewLivestatus("tcp", host)
+    q := l.Query(query)
+    q.Columns(columns)
+	q.Filter(filter)
 
     resp, err := q.Exec()
     if err != nil {
@@ -79,30 +93,23 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
     }
 
 	numRecords := 0
-    //var numRecords int = 0
-    //var errMsg string
 
+	logp.Info("Starting query")
     for _, r := range resp.Records {
         host_name, err := r.GetString("host_name")
-		//if err != nil {
-		//	logp.Warn("Problem parsing response fields: %s", err)
-		//}
 		description, err := r.GetString("description")
-		//if err != nil {
-		//	logp.Warn("Problem parsing response fields: %s", err)
-		//}
 		state, err := r.GetInt("state")
-		//if err != nil {
-		//	logp.Warn("Problem parsing response fields: %s", err)
-		//}
 		plugin_output, err := r.GetString("plugin_output")
-		//if err != nil {
-		//	logp.Warn("Problem parsing response fields: %s", err)
-		//}
 		perf_data, err := r.GetString("perf_data")
 		if err != nil {
 			logp.Warn("Problem parsing response fields: %s", err)
 		}
+		
+		logp.Info("hostname: %s", host_name)
+		logp.Info("description: %s", description)
+		logp.Info("state: %s", state)
+		logp.Info("plugin_output: %s", plugin_output)
+		logp.Info("perfdata: %s", perf_data)
 		
 		event := common.MapStr {
 			"@timestamp":	common.Time(time.Now()),
@@ -114,59 +121,74 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 			"perfdata":	perf_data,
 		}
 		
-		if len(perf_data) > 0 && perf_data != "" {
-			var perfObjMap map[string]map[string]string
-			var perfDataSplit []string
-			
-			perfDataSplit = strings.Split(perf_data, " ")
-			perfObjMap = make(map[string]map[string]string)
-			for _, perfObj := range perfDataSplit {
-				var perfObjSplit []string
-				var dataSplit []string
-				if perfObj != "" {
-					perfObjSplit = strings.Split(perfObj, "=")
-					if len(perfObjSplit) >= 2 {
-						item := perfObjSplit[0]
-						data := perfObjSplit[1]
-						if data != "" {
-							if strings.Contains(data, ";") {
-								dataSplit = strings.Split(data, ";")
-								perfObjMap[item] = make(map[string]string)
-								dsLen := len(dataSplit)
-								if dsLen >= 1 {
-									if len(dataSplit[0]) > 0 { perfObjMap[item]["value"] = dataSplit[0] }
+		if metrics == true {
+			if perf_data != "" {
+			//if len(perf_data) > 0 {
+				var perfObjMap map[string]map[string]string
+				var perfDataSplit []string
+				
+				perfDataSplit = strings.Split(perf_data, " ")
+				perfObjMap = make(map[string]map[string]string)
+				for _, perfObj := range perfDataSplit {
+					var perfObjSplit []string
+					var dataSplit []string
+					if perfObj != "" {
+						perfObjSplit = strings.Split(perfObj, "=")
+						if len(perfObjSplit) == 2 {
+							item := perfObjSplit[0]
+							data := perfObjSplit[1]
+							logp.Info("metrics: %s", item)
+							if data != "" {
+								if strings.Contains(data, ";") {
+									dataSplit = strings.Split(data, ";")
+									perfObjMap[item] = make(map[string]string)
+									dsLen := len(dataSplit)
+									if dsLen >= 1 {
+										if len(dataSplit[0]) > 0 {
+											perfObjMap[item]["value"] = dataSplit[0]
+											logp.Info("metrics: %s: value: %s", item, dataSplit[0])
+										}
+									}
+									if dsLen >= 2 {
+										if len(dataSplit[1]) > 0 {
+											perfObjMap[item]["min"] = dataSplit[1]
+											logp.Info("metrics: %s: min: %s", item, dataSplit[1])
+										}
+									}
+									if dsLen >= 3 {
+										if len(dataSplit[2]) > 0 {
+											perfObjMap[item]["max"] = dataSplit[2]
+											logp.Info("metrics: %s: max: %s", item, dataSplit[2])
+										}
+									}
+									if dsLen >= 4 {
+										if len(dataSplit[3]) > 0 {
+											perfObjMap[item]["warn"] = dataSplit[3]
+											logp.Info("metrics: %s: warn: %s", item, dataSplit[3])
+										}
+									}
+									if dsLen >= 5 {
+										if len(dataSplit[4]) > 0 {
+											perfObjMap[item]["crit"] = dataSplit[4]
+											logp.Info("metrics: %s: crit: %s", item, dataSplit[4])
+										}
+									}
+								} else {
+									perfObjMap[item] = make(map[string]string)
+									perfObjMap[item]["value"] = data
+									logp.Info("metrics: %s: value: %s", item, data)
 								}
-								if dsLen >= 2 {
-									if len(dataSplit[1]) > 0 { perfObjMap[item]["min"] = dataSplit[1] }
-								}
-								if dsLen >= 3 {
-									if len(dataSplit[2]) > 0 { perfObjMap[item]["max"] = dataSplit[2] }
-								}
-								if dsLen >= 4 {
-									if len(dataSplit[3]) > 0 { perfObjMap[item]["warn"] = dataSplit[3] }
-								}
-								if dsLen >= 5 {
-									if len(dataSplit[4]) > 0 { perfObjMap[item]["crit"] = dataSplit[4] }
-								}
-							} else {
-								perfObjMap[item] = make(map[string]string)
-								perfObjMap[item]["value"] = data
 							}
 						}
 					}
 				}
+				event["metrics"] = perfObjMap
 			}
-			event["metrics"] = perfObjMap
 		}
-
-		//if len(errMsg) > 0 {
-		//	event["error"] = errMsg
-		//}
-	
+		logp.Info("Publishing event")
 		bt.client.PublishEvent(event)
 		numRecords++
     }
-
     elapsed := time.Since(start)
     logp.Info("%v events submitted in %s.", numRecords, elapsed)
     return nil

@@ -1,26 +1,3 @@
-#================================ Configuration =====================================
-
-cmkbeat:
-  # How often to query livestatus for data. The default is 30s.
-  period: 30s
-
-  # The host and port where livestatus is listening.
-  cmkHost: "localhost:6557"
-
-  # Which table to query
-  query: "services"
-
-  # The columns of data you want to retrieve
-  columns: ["host_name", "description", "state", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"]
-
-  # (Optional) The filter string to apply to the query.
-  # Ex. (state = 2) or (description ~ CPU)
-  filter: ""
-
-  # Whether or not to split up the perfdata into individual metrics. This will create additional fields such as
-  # [cpu][value], [cpu][min], [cpu][max], etc. for each parameter in the performance data.
-  metrics: true
-
 
 #================================ General =====================================
 
@@ -55,23 +32,23 @@ output.elasticsearch:
   #username: "elastic"
   #password: "changeme"
   
-  # Optional index name. The default is "cmkbeat" plus date
-  # and generates [cmkbeat-]YYYY.MM.DD keys.
-  index: "cmkbeat-%{+yyyy.MM.dd}"
+  # Optional index name. The default is "beatname" plus date
+  # and generates [beatname-]YYYY.MM.DD keys.
+  index: "beatname-%{+yyyy.MM.dd}"
   
   # Set to false to disable template loading.
   template.enabled: true
   
-  # Template name. By default the template name is cmkbeat.
-  template.name: "cmkbeat"
+  # Template name. By default the template name is beatname.
+  template.name: "beatname"
   
   # Path to template file
-  template.path: "${path.config}/cmkbeat.template.json"
+  template.path: "${path.config}/beatname.template.json"
   
   # Overwrite existing template
   template.overwrite: true
   
-  # If set to true, cmkbeat checks the Elasticsearch version at connect time, and if it
+  # If set to true, beatname checks the Elasticsearch version at connect time, and if it
   # is 2.x, it loads the file specified by the template.versions.2x.path setting. The
   # default is true.
   template.versions.2x.enabled: false
@@ -93,29 +70,29 @@ output.elasticsearch:
 
 #================================= Paths ======================================
 path:
-  # The home path for the cmkbeat installation. This is the default base path
+  # The home path for the beatname installation. This is the default base path
   # for all other path settings and for miscellaneous files that come with the
   # distribution (for example, the sample dashboards).
   # If not set by a CLI flag or in the configuration file, the default for the
   # home path is the location of the binary.
-  home: /usr/share/cmkbeat
+  home: /usr/share/beatname
 
-  # The configuration path for the cmkbeat installation. This is the default
+  # The configuration path for the beatname installation. This is the default
   # base path for configuration files, including the main YAML configuration file
   # and the Elasticsearch template file. If not set by a CLI flag or in the
   # configuration file, the default for the configuration path is the home path.
-  config: /etc/cmkbeat
+  config: /etc/beatname
 
-  # The data path for the cmkbeat installation. This is the default base path
-  # for all the files in which cmkbeat needs to store its data. If not set by a
+  # The data path for the beatname installation. This is the default base path
+  # for all the files in which beatname needs to store its data. If not set by a
   # CLI flag or in the configuration file, the default for the data path is a data
   # subdirectory inside the home path.
-  data: /var/lib/cmkbeat
+  data: /var/lib/beatname
 
-  # The logs path for a cmkbeat installation. This is the default location for
+  # The logs path for a beatname installation. This is the default location for
   # the Beat's log files. If not set by a CLI flag or in the configuration file,
   # the default for the logs path is a logs subdirectory inside the home path.
-  logs: /var/log/cmkbeat
+  logs: /var/log/beatname
 
 #================================ Logging =====================================
 # There are three options for the log output: syslog, file, stderr.
@@ -134,7 +111,7 @@ logging:
   # Send all logging output to syslog. The default is false.
   to_syslog: false
 
-  # If enabled, cmkbeat periodically logs its internal metrics that have changed
+  # If enabled, beatname periodically logs its internal metrics that have changed
   # in the last period. For each metric that changed, the delta from the value at
   # the beginning of the period is logged. Also, the total values for
   # all non-zero internal metrics are logged on shutdown. The default is true.
@@ -149,10 +126,10 @@ logging:
   files:
     # Configure the path where the logs are written. The default is the logs directory
     # under the home path (the binary location).
-    path: /var/log/cmkbeat
+    path: /var/log/beatname
 
     # The name of the files where the logs are written to.
-    name: cmkbeat.log
+    name: beatname.log
 
     # Configure log file size limit. If limit is reached, log file will be
     # automatically rotated

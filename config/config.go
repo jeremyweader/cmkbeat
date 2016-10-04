@@ -8,10 +8,18 @@ import "time"
 type Config struct {
 	Period time.Duration `config:"period"`
 	Cmkhost string `config:"cmkHost"`
+	Query string `config:"query"`
+	Columns []string `config:"columns"`
+	Filter string `config:"filter"`
+	Metrics bool `config:"metrics"`
 }
 
 var DefaultConfig = Config{
 	Period: 30 * time.Second,
-	Cmkhost: "192.168.0.19:6557",
+	Cmkhost: "localhost:6557",
+	Query: "services",
+	Columns: []string{"host_name", "description", "state", "plugin_output", "perf_data"},
+	Filter: "",
+	Metrics: true,
 }
 

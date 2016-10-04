@@ -6,6 +6,33 @@ PREFIX?=.
 
 # Path to the libbeat Makefile
 -include $(ES_BEATS)/libbeat/scripts/Makefile
+.PHONY: deps
+deps:
+	glide up
+	
+.PHONY: config
+config:
+	echo "Update config file"
+	-rm -f ${BEATNAME}.yml
+	cat etc/beat.yml etc/config.yml | sed -e "s/beatname/${BEATNAME}/g" > ${BEATNAME}.yml
+	-rm -f ${BEATNAME}.full.yml
+	cat etc/beat.yml etc/config.full.yml | sed -e "s/beatname/${BEATNAME}/g" > ${BEATNAME}.full.yml
+
+	# Update doc
+	python ${ES_BEATS}/libbeat/scripts/generate_fields_docs.py $(PWD) ${BEATNAME} ${ES_BEATS}
+
+	# Generate index templates
+	python ${ES_BEATS}/libbeat/scripts/generate_template.py $(PWD) ${BEATNAME} ${ES_BEATS}
+	python ${ES_BEATS}/libbeat/scripts/generate_template.py --es2x $(PWD) ${BEATNAME} ${ES_BEATS}
+
+	# Update docs version
+	cp ${ES_BEATS}/libbeat/docs/version.asciidoc docs/version.asciidoc
+
+	# Generate index-pattern
+	echo "Generate index pattern"
+	-rm -f $(PWD)/etc/kibana/index-pattern/${BEATNAME}.json
+	mkdir -p $(PWD)/etc/kibana/index-pattern
+	python ${ES_BEATS}/libbeat/scripts/generate_index_pattern.py --index ${BEATNAME}-* --libbeat ${ES_BEATS}/libbeat --beat $(PWD)
 
 
 .PHONY: install
@@ -28,3 +55,8 @@ uninstall:
 	rm -rf /var/lib/$(BEATNAME)
 	rm -rf /usr/share/$(BEATNAME)
 	rm -rf /etc/$(BEATNAME)
+	
+.PHONY: all
+all:
+	make deps
+	make cmkbeat

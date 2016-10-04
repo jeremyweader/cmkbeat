@@ -1,4 +1,23 @@
+#================================ Configuration =====================================
+
 cmkbeat:
+  # How often to query livestatus for data. The default is 30s.
   period: 30s
-  cmkHost: "192.168.0.19:6557"
-  
+
+  # The host and port where livestatus is listening.
+  cmkHost: "localhost:6557"
+
+  # Which table to query
+  query: "services"
+
+  # The columns of data you want to retrieve
+  columns: ["host_name", "description", "state", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"]
+
+  # (Optional) The filter string to apply to the query.
+  # Ex. (state = 2) or (description ~ CPU)
+  filter: ""
+
+  # Whether or not to split up the perfdata into individual metrics. This will create additional fields such as
+  # [cpu][value], [cpu][min], [cpu][max], etc. for each parameter in the performance data.
+  metrics: true
+

@@ -4,8 +4,6 @@ Welcome to Cmkbeat.
 
 CMKBeat is used to retrieve information from Check_MK's livestatus and send it to Elasticsearch / Logstash / etc.
 
-WARNING: This repository is still under active development, and there is no guarantee that it will run (or build) properly!
-
 ## Getting Started with Cmkbeat
 
 ### Requirements
@@ -17,24 +15,21 @@ WARNING: This repository is still under active development, and there is no guar
 
 CMKBeat uses Glide for dependency management. To install glide, see https://github.com/Masterminds/glide
 
-or (in most cases) run "go get github.com/Masterminds/glide.
+or (in most cases) run "go get github.com/Masterminds/glide".
 
-To install all dependencies, simply run
+To install all of the dependencies and build the binary, run
 
-"glide up"
+"make all"
 
-in the cmkbeat directory, and to build the cmk binary and default configuration files, either
-
-"make"
--or-
-"go build"
-
-will do the trick. Once you have built the cmkbeat binary, you can simply copy the executable and configuration files into your desired directories, and there is a systemv style init script in the 'services directory.
-You can also just run
+in the cmkbeat directory.  Once built, you can simply copy the executable and configuration files into your
+desired directories, or run
 
 "make install"
 
-to install everything to the default locations.
+to install everything to the default locations. If installing manually, there is a sysv init script in the
+system/ directory.
+
+### Run
 
 To start cmkbeat manually, run
 
