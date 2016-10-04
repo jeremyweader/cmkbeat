@@ -13,7 +13,9 @@
             },
             "match_mapping_type": "string",
             "path_match": "fields.*"
-          },
+          }
+		},
+		{
 		  "metrics": {
 			"mapping": {
 				"type": "float"
