@@ -85,7 +85,10 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
     l := livestatus.NewLivestatus("tcp", host)
     q := l.Query(query)
     q.Columns(columns)
-	q.Filter(filter)
+	
+	if filter != "" {
+		q.Filter(filter)
+	}
 
     resp, err := q.Exec()
     if err != nil {
@@ -107,7 +110,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 		
 		logp.Info("hostname: %s", host_name)
 		logp.Info("description: %s", description)
-		logp.Info("state: %s", state)
+		logp.Info("state: %v", state)
 		logp.Info("plugin_output: %s", plugin_output)
 		logp.Info("perfdata: %s", perf_data)
 		
@@ -122,11 +125,11 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 		}
 		
 		if metrics == true {
-			if perf_data != "" {
-			//if len(perf_data) > 0 {
+			//if perf_data != "" {
+			if len(perf_data) > 0 {
 				var perfObjMap map[string]map[string]string
 				var perfDataSplit []string
-				
+
 				perfDataSplit = strings.Split(perf_data, " ")
 				perfObjMap = make(map[string]map[string]string)
 				for _, perfObj := range perfDataSplit {
@@ -137,7 +140,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 						if len(perfObjSplit) == 2 {
 							item := perfObjSplit[0]
 							data := perfObjSplit[1]
-							logp.Info("metrics: %s", item)
 							if data != "" {
 								if strings.Contains(data, ";") {
 									dataSplit = strings.Split(data, ";")
