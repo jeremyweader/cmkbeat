@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"regexp"
 
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
@@ -34,6 +35,25 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 }
 
 func (bt *Cmkbeat) Run(b *beat.Beat) error {
+	
+	if len(bt.config.Cmkhost) < 1 {
+		return fmt.Errorf("Error: Invalid cmkhost config \"%s\"", bt.config.Cmkhost)
+	}
+	if len(bt.config.Query) < 1 {
+		return fmt.Errorf("Error: Invalid query config \"%s\"", bt.config.Query)
+	}
+	if len(bt.config.Columns) < 1 {
+		return fmt.Errorf("Error: Invalid columns config \"%s\"", bt.config.Columns)
+	}
+	
+	
+	logp.Info("------Config-------")
+	logp.Info("Host: %s", bt.config.Cmkhost)
+	logp.Info("Query: %s", bt.config.Query)
+	logp.Info("Columns: %s", bt.config.Columns)
+	logp.Info("Filter: %s", bt.config.Filter)
+	logp.Info("Metrics: %t", bt.config.Metrics)
+	logp.Info("--------------")
 
 	bt.client = b.Publisher.Connect()
 	ticker := time.NewTicker(bt.config.Period)
@@ -60,12 +80,7 @@ func (bt *Cmkbeat) Stop() {
 
 func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	
-//	defer func() {
-//		if err := recover(); err != nil {
-//			logp.Warn("Error: %s", err)
-//		}
-//    }()
-	
+	logp.Info("Starting query")
     start := time.Now()
 	
 	var host string = lshost
@@ -74,19 +89,11 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	var filter string = bt.config.Filter
 	var metrics bool = bt.config.Metrics
 	
-	logp.Info("------Config-------")
-	logp.Info("Host: %s", host)
-	logp.Info("Query: %s", query)
-	logp.Info("Columns: %s", columns)
-	logp.Info("Filter: %s", filter)
-	logp.Info("Metrics: %s", metrics)
-	logp.Info("--------------")
-	
     l := livestatus.NewLivestatus("tcp", host)
     q := l.Query(query)
     q.Columns(columns)
 	
-	if filter != "" {
+	if len(filter) > 0 {
 		q.Filter(filter)
 	}
 
@@ -97,7 +104,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 
 	numRecords := 0
 
-	logp.Info("Starting query")
     for _, r := range resp.Records {
         host_name, err := r.GetString("host_name")
 		description, err := r.GetString("description")
@@ -125,7 +131,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 		}
 		
 		if metrics == true {
-			//if perf_data != "" {
 			if len(perf_data) > 0 {
 				var perfObjMap map[string]map[string]string
 				var perfDataSplit []string
@@ -147,38 +152,62 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 									dsLen := len(dataSplit)
 									if dsLen >= 1 {
 										if len(dataSplit[0]) > 0 {
-											perfObjMap[item]["value"] = dataSplit[0]
-											logp.Info("metrics: %s: value: %s", item, dataSplit[0])
+											re := regexp.MustCompile("[0-9\\.]+")
+											num := re.FindAllString(dataSplit[0], 1)
+											if len(num) > 0 {
+												perfObjMap[item]["value"] = num[0]
+											}
+											logp.Info("metrics: %s: value: %v", item, num[0])
 										}
 									}
 									if dsLen >= 2 {
 										if len(dataSplit[1]) > 0 {
-											perfObjMap[item]["min"] = dataSplit[1]
-											logp.Info("metrics: %s: min: %s", item, dataSplit[1])
+											re := regexp.MustCompile("[0-9\\.]+")
+											num := re.FindAllString(dataSplit[1], 1)
+											if len(num) > 0 {
+												perfObjMap[item]["min"] = num[0]
+											}
+											logp.Info("metrics: %s: min: %v", item, num[0])
 										}
 									}
 									if dsLen >= 3 {
 										if len(dataSplit[2]) > 0 {
-											perfObjMap[item]["max"] = dataSplit[2]
-											logp.Info("metrics: %s: max: %s", item, dataSplit[2])
+											re := regexp.MustCompile("[0-9\\.]+")
+											num := re.FindAllString(dataSplit[2], 1)
+											if len(num) > 0 {
+												perfObjMap[item]["max"] = num[0]
+											}
+											logp.Info("metrics: %s: max: %v", item, num[0])
 										}
 									}
 									if dsLen >= 4 {
 										if len(dataSplit[3]) > 0 {
-											perfObjMap[item]["warn"] = dataSplit[3]
-											logp.Info("metrics: %s: warn: %s", item, dataSplit[3])
+											re := regexp.MustCompile("[0-9\\.]+")
+											num := re.FindAllString(dataSplit[3], 1)
+											if len(num) > 0 {
+												perfObjMap[item]["warn"] = num[0]
+											}
+											logp.Info("metrics: %s: warn: %v", item, num[0])
 										}
 									}
 									if dsLen >= 5 {
 										if len(dataSplit[4]) > 0 {
-											perfObjMap[item]["crit"] = dataSplit[4]
-											logp.Info("metrics: %s: crit: %s", item, dataSplit[4])
+											re := regexp.MustCompile("[0-9\\.]+")
+											num := re.FindAllString(dataSplit[4], 1)
+											if len(num) > 0 {
+												perfObjMap[item]["crit"] = num[0]
+											}
+											logp.Info("metrics: %s: crit: %v", item, num[0])
 										}
 									}
 								} else {
 									perfObjMap[item] = make(map[string]string)
-									perfObjMap[item]["value"] = data
-									logp.Info("metrics: %s: value: %s", item, data)
+									re := regexp.MustCompile("[0-9\\.]+")
+									num := re.FindAllString(data, 1)
+									if len(num) > 0 {
+										perfObjMap[item]["value"] = num[0]
+									}
+									logp.Info("metrics: %s: value: %v", item, num[0])
 								}
 							}
 						}

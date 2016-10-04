@@ -1,4 +1,4 @@
-package: github.com/jeremyweader/cmkbeat
+package: .
 import:
 - package: github.com/elastic/beats
   subpackages:

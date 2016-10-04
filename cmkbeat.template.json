@@ -4,9 +4,6 @@
       "_all": {
         "norms": false
       },
-      "_meta": {
-        "version": "5.0.0-rc1"
-      },
       "dynamic_templates": [
         {
           "fields": {
@@ -16,9 +13,16 @@
             },
             "match_mapping_type": "string",
             "path_match": "fields.*"
-          }
+          },
+		  "metrics": {
+			"mapping": {
+				"type": "float"
+			},
+		    "path_match": "metrics.*"
+		  }
         }
       ],
+	  "numeric_detection": true,
       "properties": {
         "@timestamp": {
           "type": "date"
@@ -56,7 +60,7 @@
           "type": "text"
         },
         "state": {
-          "type": "long"
+          "type": "short"
         },
         "tags": {
           "ignore_above": 1024,
