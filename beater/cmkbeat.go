@@ -45,7 +45,17 @@ func (bt *Cmkbeat) Run(b *beat.Beat) error {
 	if len(bt.config.Columns) < 1 {
 		return fmt.Errorf("Error: Invalid columns config \"%s\"", bt.config.Columns)
 	}
-	
+	if bt.config.Metrics == true {
+		var pd bool = false
+		for _, v := range bt.config.Columns {
+			if v == "perf_data" {
+				pd = true
+			}
+		}
+		if pd == false {
+			return fmt.Errorf("Error: Metrics require searching for the perf_data column.")
+		}
+	}
 	
 	logp.Info("------Config-------")
 	logp.Info("Host: %s", bt.config.Cmkhost)
@@ -105,32 +115,36 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	numRecords := 0
 
     for _, r := range resp.Records {
-        host_name, err := r.GetString("host_name")
-		description, err := r.GetString("description")
-		state, err := r.GetInt("state")
-		plugin_output, err := r.GetString("plugin_output")
-		perf_data, err := r.GetString("perf_data")
-		if err != nil {
-			logp.Warn("Problem parsing response fields: %s", err)
-		}
-		
-		logp.Info("hostname: %s", host_name)
-		logp.Info("description: %s", description)
-		logp.Info("state: %v", state)
-		logp.Info("plugin_output: %s", plugin_output)
-		logp.Info("perfdata: %s", perf_data)
-		
+			
 		event := common.MapStr {
 			"@timestamp":	common.Time(time.Now()),
 			"type":		beatname,
-			"host":		host_name,
-			"description":	description,
-			"state":	state,
-			"output":	plugin_output,
-			"perfdata":	perf_data,
 		}
 		
-		if metrics == true {
+		var colData map[string]string
+		colData = make(map[string]string)
+		for _, c := range columns {
+			logp.Info("Getting column %s", c)
+			var data interface{}
+			data, err = r.Get(c)
+			if err != nil {
+				logp.Warn("Problem parsing response fields: %s", err)
+			}
+			if strData, ok := data.(string); ok {
+				colData[c] = strData
+				logp.Info("%s: %s", c, strData)
+				event[c] = strData
+			} else {
+				strData := fmt.Sprint(data)
+				colData[c] = strData
+				logp.Info("%s: %s", c, strData)
+				event[c] = strData
+			}
+		}
+		
+		if metrics {
+			var perf_data string
+			perf_data = colData["perf_data"]
 			if len(perf_data) > 0 {
 				var perfObjMap map[string]map[string]string
 				var perfDataSplit []string
@@ -140,12 +154,12 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 				for _, perfObj := range perfDataSplit {
 					var perfObjSplit []string
 					var dataSplit []string
-					if perfObj != "" {
+					if len(perfObj) > 0 {
 						perfObjSplit = strings.Split(perfObj, "=")
 						if len(perfObjSplit) == 2 {
 							item := perfObjSplit[0]
 							data := perfObjSplit[1]
-							if data != "" {
+							if len(data) > 0 {
 								if strings.Contains(data, ";") {
 									dataSplit = strings.Split(data, ";")
 									perfObjMap[item] = make(map[string]string)
@@ -209,12 +223,20 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 									}
 									logp.Info("metrics: %s: value: %v", item, num[0])
 								}
+							} else {
+								logp.Warn("Empty data")
 							}
 						}
+					} else {
+						logp.Warn("Empty perfobj")
 					}
 				}
 				event["metrics"] = perfObjMap
+			} else {
+				logp.Warn("Empty perfdata")
 			}
+		} else {
+			logp.Info("Metrics is false")
 		}
 		logp.Info("Publishing event")
 		bt.client.PublishEvent(event)
