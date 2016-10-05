@@ -106,9 +106,11 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	if len(filter) > 0 {
 		for _, f := range filter {
 			if strings.HasPrefix(f, "And") {
-				q.And(strings.TrimPrefix(f, "And: "))
+				and := Atoi(strings.TrimPrefix(f, "And: "))
+				q.And(and)
 			} else if strings.HasPrefix(f, "Or") {
-				q.Or(strings.TrimPrefix(f, "Or: "))
+				or := Atoi(strings.TrimPrefix(f, "Or: "))
+				q.Or(or)
 			} else {
 				q.Filter(f)
 			}
@@ -153,12 +155,16 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 		if metrics {
 			var perf_data string
 			perf_data = colData["perf_data"]
+			var sName string
+			sName = colData["display_name"]
 			if len(perf_data) > 0 {
-				var perfObjMap map[string]map[string]string
+
+				var perfObjMap map[string]map[string]map[string]string
 				var perfDataSplit []string
 
 				perfDataSplit = strings.Split(perf_data, " ")
-				perfObjMap = make(map[string]map[string]string)
+				perfObjMap = make(map[string]map[string]map[string]string)
+				perfObjMap[sName] = make(map[string]map[string]string)
 				for _, perfObj := range perfDataSplit {
 					var perfObjSplit []string
 					var dataSplit []string
@@ -170,14 +176,14 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 							if len(data) > 0 {
 								if strings.Contains(data, ";") {
 									dataSplit = strings.Split(data, ";")
-									perfObjMap[item] = make(map[string]string)
+									perfObjMap[sName][item] = make(map[string]string)
 									dsLen := len(dataSplit)
 									if dsLen >= 1 {
 										if len(dataSplit[0]) > 0 {
 											re := regexp.MustCompile("[0-9\\.]+")
 											num := re.FindString(dataSplit[0])
 											if len(num) > 0 {
-												perfObjMap[item]["value"] = num
+												perfObjMap[sName][item]["value"] = num
 											}
 											logp.Info("metrics: %s: value: %v", item, num)
 										}
@@ -187,7 +193,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											re := regexp.MustCompile("[0-9\\.]+")
 											num := re.FindString(dataSplit[1])
 											if len(num) > 0 {
-												perfObjMap[item]["min"] = num
+												perfObjMap[sName][item]["min"] = num
 											}
 											logp.Info("metrics: %s: min: %v", item, num)
 										}
@@ -197,7 +203,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											re := regexp.MustCompile("[0-9\\.]+")
 											num := re.FindString(dataSplit[2])
 											if len(num) > 0 {
-												perfObjMap[item]["max"] = num
+												perfObjMap[sName][item]["max"] = num
 											}
 											logp.Info("metrics: %s: max: %v", item, num)
 										}
@@ -207,7 +213,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											re := regexp.MustCompile("[0-9\\.]+")
 											num := re.FindString(dataSplit[3])
 											if len(num) > 0 {
-												perfObjMap[item]["warn"] = num
+												perfObjMap[sName][item]["warn"] = num
 											}
 											logp.Info("metrics: %s: warn: %v", item, num)
 										}
@@ -217,17 +223,17 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											re := regexp.MustCompile("[0-9\\.]+")
 											num := re.FindString(dataSplit[4])
 											if len(num) > 0 {
-												perfObjMap[item]["crit"] = num
+												perfObjMap[sName][item]["crit"] = num
 											}
 											logp.Info("metrics: %s: crit: %v", item, num)
 										}
 									}
 								} else {
-									perfObjMap[item] = make(map[string]string)
+									perfObjMap[sName][item] = make(map[string]string)
 									re := regexp.MustCompile("[0-9\\.]+")
 									num := re.FindString(data)
 									if len(num) > 0 {
-										perfObjMap[item]["value"] = num
+										perfObjMap[sName][item]["value"] = num
 									}
 									logp.Info("metrics: %s: value: %v", item, num)
 								}
@@ -239,7 +245,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 						logp.Warn("Empty perfobj")
 					}
 				}
-				event["metrics"][colData["display_name"]] = perfObjMap
+				event["metrics"] = perfObjMap
 			} else {
 				logp.Warn("Empty perfdata")
 			}
