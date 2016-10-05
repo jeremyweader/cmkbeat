@@ -20,7 +20,7 @@
 			"mapping": {
 				"type": "float"
 			},
-		    "match_pattern": "(value|min|max|warn|crit)"
+			"path_match": "[metrics][*][*][*]"
 		  }
         }
       ],
@@ -41,25 +41,44 @@
             }
           }
         },
-        "description": {
-          "norms": false,
-          "type": "keyword"
-        },
-
         "host_name": {
           "norms": false,
           "type": "keyword"
         },
-        "plugin_output": {
+		"host_alias": {
           "norms": false,
-          "type": "text"
+          "type": "keyword"
         },
-        "perf_data": {
+        "display_name": {
+          "norms": false,
+          "type": "keyword"
+        },
+        "check_command": {
           "norms": false,
           "type": "text"
         },
         "state": {
           "type": "short"
+        },
+		"acknowledged": {
+          "norms": false,
+          "type": "boolean"
+        },
+        "plugin_output": {
+          "norms": false,
+          "type": "text"
+        },
+		"long_plugin_output": {
+          "norms": false,
+          "type": "text"
+        },
+		"percent_state_change": {
+          "norms": false,
+          "type": "float"
+        },
+        "perf_data": {
+          "norms": false,
+          "type": "text"
         },
         "tags": {
           "ignore_above": 1024,

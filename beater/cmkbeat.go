@@ -96,7 +96,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	var host string = lshost
 	var query string = bt.config.Query
 	var columns []string = bt.config.Columns
-	var filter string = bt.config.Filter
+	var filter []string = bt.config.Filter
 	var metrics bool = bt.config.Metrics
 	
     l := livestatus.NewLivestatus("tcp", host)
@@ -104,7 +104,15 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
     q.Columns(columns)
 	
 	if len(filter) > 0 {
-		q.Filter(filter)
+		for _, f := range filter {
+			if strings.HasPrefix(f, "And") {
+				q.And(strings.TrimPrefix(f, "And: "))
+			} else if strings.HasPrefix(f, "Or") {
+				q.Or(strings.TrimPrefix(f, "Or: "))
+			} else {
+				q.Filter(f)
+			}
+		}
 	}
 
     resp, err := q.Exec()
@@ -231,7 +239,7 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 						logp.Warn("Empty perfobj")
 					}
 				}
-				event["metrics"] = perfObjMap
+				event["metrics"][colData["display_name"]] = perfObjMap
 			} else {
 				logp.Warn("Empty perfdata")
 			}

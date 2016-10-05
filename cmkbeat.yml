@@ -11,11 +11,16 @@ cmkbeat:
   query: "services"
 
   # The columns of data you want to retrieve
-  columns: ["host_name", "description", "state", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"]
+  columns: ["host_name", "host_alias", "display_name", "check_command", "state", "acknowledged", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"]
 
-  # (Optional) The filter string to apply to the query.
-  # Ex. (state = 2) or (description ~ CPU)
-  filter: ""
+  # (Optional) An array of filters to apply to the query.
+  # Ex. ["acknowledged = 0"] or ["description ~ CPU"]
+  # By default a query must pass all filters, but 'And: x' or
+  # 'Or: x' commands can be used, where x specifies the number
+  # of previous filter lines to apply the operator to.
+  # Ex. ["state = 1", "state = 3", "Or: 2" ] matches anything
+  # with a state of 1 OR 3.
+  filter: ["checks_enabled = 1", "acknowledged = 0"]
 
   # Whether or not to split up the perfdata into individual metrics. This will create additional fields such as
   # [cpu][value], [cpu][min], [cpu][max], etc. for each parameter in the performance data.
