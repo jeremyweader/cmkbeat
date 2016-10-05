@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"strconv"
 	"regexp"
 
 	"github.com/elastic/beats/libbeat/beat"
