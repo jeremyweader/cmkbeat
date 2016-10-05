@@ -106,10 +106,10 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 	if len(filter) > 0 {
 		for _, f := range filter {
 			if strings.HasPrefix(f, "And") {
-				and := strings.Atoi(strings.TrimPrefix(f, "And: "))
+				and := strconv.Atoi(strings.TrimPrefix(f, "And: "))
 				q.And(and)
 			} else if strings.HasPrefix(f, "Or") {
-				or := strings.Atoi(strings.TrimPrefix(f, "Or: "))
+				or := strconv.Atoi(strings.TrimPrefix(f, "Or: "))
 				q.Or(or)
 			} else {
 				q.Filter(f)
