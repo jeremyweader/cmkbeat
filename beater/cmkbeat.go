@@ -167,61 +167,61 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 									if dsLen >= 1 {
 										if len(dataSplit[0]) > 0 {
 											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindAllString(dataSplit[0], 1)
+											num := re.FindString(dataSplit[0])
 											if len(num) > 0 {
-												perfObjMap[item]["value"] = num[0]
+												perfObjMap[item]["value"] = num
 											}
-											logp.Info("metrics: %s: value: %v", item, num[0])
+											logp.Info("metrics: %s: value: %v", item, num)
 										}
 									}
 									if dsLen >= 2 {
 										if len(dataSplit[1]) > 0 {
 											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindAllString(dataSplit[1], 1)
+											num := re.FindString(dataSplit[1])
 											if len(num) > 0 {
-												perfObjMap[item]["min"] = num[0]
+												perfObjMap[item]["min"] = num
 											}
-											logp.Info("metrics: %s: min: %v", item, num[0])
+											logp.Info("metrics: %s: min: %v", item, num)
 										}
 									}
 									if dsLen >= 3 {
 										if len(dataSplit[2]) > 0 {
 											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindAllString(dataSplit[2], 1)
+											num := re.FindString(dataSplit[2])
 											if len(num) > 0 {
-												perfObjMap[item]["max"] = num[0]
+												perfObjMap[item]["max"] = num
 											}
-											logp.Info("metrics: %s: max: %v", item, num[0])
+											logp.Info("metrics: %s: max: %v", item, num)
 										}
 									}
 									if dsLen >= 4 {
 										if len(dataSplit[3]) > 0 {
 											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindAllString(dataSplit[3], 1)
+											num := re.FindString(dataSplit[3])
 											if len(num) > 0 {
-												perfObjMap[item]["warn"] = num[0]
+												perfObjMap[item]["warn"] = num
 											}
-											logp.Info("metrics: %s: warn: %v", item, num[0])
+											logp.Info("metrics: %s: warn: %v", item, num)
 										}
 									}
 									if dsLen >= 5 {
 										if len(dataSplit[4]) > 0 {
 											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindAllString(dataSplit[4], 1)
+											num := re.FindString(dataSplit[4])
 											if len(num) > 0 {
-												perfObjMap[item]["crit"] = num[0]
+												perfObjMap[item]["crit"] = num
 											}
-											logp.Info("metrics: %s: crit: %v", item, num[0])
+											logp.Info("metrics: %s: crit: %v", item, num)
 										}
 									}
 								} else {
 									perfObjMap[item] = make(map[string]string)
 									re := regexp.MustCompile("[0-9\\.]+")
-									num := re.FindAllString(data, 1)
+									num := re.FindString(data)
 									if len(num) > 0 {
-										perfObjMap[item]["value"] = num[0]
+										perfObjMap[item]["value"] = num
 									}
-									logp.Info("metrics: %s: value: %v", item, num[0])
+									logp.Info("metrics: %s: value: %v", item, num)
 								}
 							} else {
 								logp.Warn("Empty data")
