@@ -90,8 +90,7 @@ func (bt *Cmkbeat) Stop() {
 }
 
 func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
-	
-	logp.Info("Starting query")
+
     start := time.Now()
 	
 	var host string = lshost
@@ -113,7 +112,9 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 				or, _ := strconv.Atoi(strings.TrimPrefix(f, "Or: "))
 				q.Or(or)
 			} else {
-				q.Filter(f)
+				if len(f) > 1 {
+					q.Filter(f)
+				}
 			}
 		}
 	}
@@ -135,7 +136,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 		var colData map[string]string
 		colData = make(map[string]string)
 		for _, c := range columns {
-			logp.Info("Getting column %s", c)
 			var data interface{}
 			data, err = r.Get(c)
 			if err != nil {
@@ -143,12 +143,10 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 			}
 			if strData, ok := data.(string); ok {
 				colData[c] = strData
-				logp.Info("%s: %s", c, strData)
 				event[c] = strData
 			} else {
 				strData := fmt.Sprint(data)
 				colData[c] = strData
-				logp.Info("%s: %s", c, strData)
 				event[c] = strData
 			}
 		}
@@ -186,7 +184,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											if len(num) > 0 {
 												perfObjMap[sName][item]["value"] = num
 											}
-											logp.Info("metrics: %s: value: %v", item, num)
 										}
 									}
 									if dsLen >= 2 {
@@ -196,7 +193,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											if len(num) > 0 {
 												perfObjMap[sName][item]["min"] = num
 											}
-											logp.Info("metrics: %s: min: %v", item, num)
 										}
 									}
 									if dsLen >= 3 {
@@ -206,7 +202,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											if len(num) > 0 {
 												perfObjMap[sName][item]["max"] = num
 											}
-											logp.Info("metrics: %s: max: %v", item, num)
 										}
 									}
 									if dsLen >= 4 {
@@ -216,7 +211,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											if len(num) > 0 {
 												perfObjMap[sName][item]["warn"] = num
 											}
-											logp.Info("metrics: %s: warn: %v", item, num)
 										}
 									}
 									if dsLen >= 5 {
@@ -226,7 +220,6 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 											if len(num) > 0 {
 												perfObjMap[sName][item]["crit"] = num
 											}
-											logp.Info("metrics: %s: crit: %v", item, num)
 										}
 									}
 								} else {
@@ -236,24 +229,14 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 									if len(num) > 0 {
 										perfObjMap[sName][item]["value"] = num
 									}
-									logp.Info("metrics: %s: value: %v", item, num)
 								}
-							} else {
-								logp.Warn("Empty data")
-							}
+							} 
 						}
-					} else {
-						logp.Warn("Empty perfobj")
-					}
+					} 
 				}
 				event["metrics"] = perfObjMap
-			} else {
-				logp.Warn("Empty perfdata")
-			}
-		} else {
-			logp.Info("Metrics is false")
-		}
-		logp.Info("Publishing event")
+			} 
+		} 
 		bt.client.PublishEvent(event)
 		numRecords++
     }
