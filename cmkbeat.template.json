@@ -61,7 +61,6 @@
           "type": "short"
         },
 		"acknowledged": {
-          "norms": false,
           "type": "boolean"
         },
         "plugin_output": {
@@ -73,7 +72,6 @@
           "type": "text"
         },
 		"percent_state_change": {
-          "norms": false,
           "type": "float"
         },
         "perf_data": {
@@ -94,7 +92,9 @@
   "settings": {
     "index.refresh_interval": "5s",
 	"index.mapping.coerce": true,
-	"index.mapping.ignore_malformed": true
+	"index.mapping.ignore_malformed": true,
+	"index.mapping.total_fields.limit": 5000,
+	"index.mapping.nested_fields.limit": 2500
   },
   "template": "cmkbeat-*"
 }
