@@ -2,15 +2,23 @@
   title: cmkbeat
   description: Retrieves host status from MK Livestatus (Check_MK)
   fields:
-    - name: error
+    - name: host_name
       type: text
-    - name: host
+    - name: host_alias
       type: text
-    - name: description
+    - name: display_name
+      type: text
+    - name: check_command
       type: text
     - name: state
       type: integer
-    - name: output
+    - name: acknowledged
+      type: boolean
+    - name: plugin_output
       type: text
-    - name: perfdata
+    - name: long_plugin_output
+      type: text
+    - name: percent_state_change
+      type: integer
+    - name: perf_data
       type: text

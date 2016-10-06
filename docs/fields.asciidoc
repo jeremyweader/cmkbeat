@@ -70,32 +70,89 @@ Retrieves host status from MK Livestatus (Check_MK)
 
 
 [float]
-=== error
+=== host_name
 
 type: text
+
+The Check_MK hostname of the host running the check
 
 [float]
-=== host
+=== host_alias
 
 type: text
+
+The Check_MK alias of the host running the check
 
 [float]
-=== description
+=== display_name
 
 type: text
+
+The Check_MK display name of the service being checked
+
+[float]
+=== check_command
+
+type: text
+
+The Check_MK check command being run
 
 [float]
 === state
 
 type: integer
 
+The Check_MK return state of the check:
+  0 - OK
+  1 - WARNING
+  2 - CRITICAL
+  3 - UNKNOWN
+
 [float]
-=== output
+=== acknowledged
+
+type: boolean
+
+Whether the Check_MK notification has been acknowledged
+format: true / false
+
+[float]
+=== plugin_output
 
 type: text
 
+The Check_MK output summary from the check being run. Usually includes the service state
+and the text response from the check
+Ex. OK - free space: / 3326MB (56%);
+
 [float]
-=== perfdata
+=== long_plugin_output
 
 type: text
 
+If the plugin returns multiple lines of text output, this field will contain the additional output
+returned from the Check_MK check. This field is optional.
+
+[float]
+=== percent_state_change
+
+Type: number
+
+The percentage of recent Check_MK check responses that have resulted in a state change for the service
+
+[float]
+=== perf_data
+
+type: text
+
+The performance data string returned by the Check_MK plugin, if provided. Not all checks will return
+performance data. Format is {value};{min};{max};{warn};{crit}
+
+[float]
+=== metrics
+
+type: dict
+
+If enabled in the configuration, the performance data returned by the plugin will be parsed into separate
+metrics that can be tracked, and stored under the [metrics][service_name][perfdata_object] field.
+Ex: [metrics][Disk Usage][free][value] = "3326"

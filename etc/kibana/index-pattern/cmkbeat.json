@@ -1,6 +1,135 @@
 {
-  "fields": "[{\"count\": 0, \"name\": \"beat.name\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"beat.hostname\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"@timestamp\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"date\", \"scripted\": false}, {\"count\": 0, \"name\": \"tags\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"fields\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"scripted\": false}, {\"count\": 0, \"name\": \"error\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"host\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"description\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"state\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"number\", \"scripted\": false}, {\"count\": 0, \"name\": \"output\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}, {\"count\": 0, \"name\": \"perfdata\", \"analyzed\": false, \"indexed\": true, \"doc_values\": true, \"type\": \"string\", \"scripted\": false}]", 
-  "fieldFormatMap": "{\"@timestamp\": {\"id\": \"date\"}}", 
+  "fields": "[
+    {
+      \"count\": 0,
+      \"name\": \"beat.name\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    },
+    {
+      \"count\": 0,
+      \"name\": \"beat.hostname\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    },
+    {
+      \"count\": 0,
+      \"name\": \"@timestamp\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"date\",
+      \"scripted\": false
+    },
+    {
+      \"count\": 0,
+      \"name\": \"tags\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    },
+    {
+      \"count\": 0,
+      \"name\": \"fields\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"host_name\",
+      \"analyzed\": true,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"host_alias\",
+      \"analyzed\": true,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"display_name\",
+      \"analyzed\": true,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"check_command\",
+      \"analyzed\": true,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"state\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"number\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"acknowledged\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"boolean\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"plugin_output\",
+      \"analyzed\": true,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"long_plugin_output\",
+      \"analyzed\": true,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"percent_state_change\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"number\",
+      \"scripted\": false
+    }, {
+      \"count\": 0,
+      \"name\": \"perf_data\",
+      \"analyzed\": false,
+      \"indexed\": true,
+      \"doc_values\": true,
+      \"type\": \"string\",
+      \"scripted\": false
+    }
+  ]", 
+  "fieldFormatMap": "{
+    \"@timestamp\": {
+      \"id\": \"date\"
+    }
+  }", 
   "timeFieldName": "@timestamp", 
   "title": "cmkbeat-*"
 }

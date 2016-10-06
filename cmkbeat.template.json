@@ -20,7 +20,7 @@
 			"mapping": {
 				"type": "float"
 			},
-			"path_match": "[metrics][*][*][*]"
+			"path_match": "[metrics][*][*]"
 		  }
         }
       ],
@@ -45,23 +45,12 @@
           "norms": false,
           "type": "keyword"
         },
-		"host_alias": {
-          "norms": false,
-          "type": "keyword"
-        },
         "display_name": {
           "norms": false,
           "type": "keyword"
         },
-        "check_command": {
-          "norms": false,
-          "type": "text"
-        },
         "state": {
           "type": "short"
-        },
-		"acknowledged": {
-          "type": "boolean"
         },
         "plugin_output": {
           "norms": false,
@@ -81,10 +70,7 @@
         "tags": {
           "ignore_above": 1024,
           "type": "keyword"
-        },
-		"metrics": {
-			"type": "nested"
-		}
+        }
       }
     }
   },

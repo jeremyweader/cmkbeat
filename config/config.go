@@ -12,14 +12,20 @@ type Config struct {
 	Columns []string `config:"columns"`
 	Filter []string `config:"filter"`
 	Metrics bool `config:"metrics"`
+    MetricsAllow []string `config:"metrics_allow"`
+    MetricsBlock []string `config:"metrics_block"`
+    MetricsValOnly bool `config:"metrics_value_only"`
 }
 
 var DefaultConfig = Config{
 	Period: 30 * time.Second,
 	Cmkhost: "localhost:6557",
 	Query: "services",
-	Columns: []string{"host_name", "host_alias", "display_name", "check_command", "state", "acknowledged", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"},
-	Filter: []string{"checks_enabled = 1", "acknowledged = 0"},
+	Columns: []string{"host_name", "display_name", "state",  "plugin_output", "perf_data"},
+	Filter: nil,
 	Metrics: true,
+    MetricsAllow: nil,
+    MetricsBlock: nil,
+    MetricsValOnly: true,
 }
 

@@ -7,17 +7,27 @@ cmkbeat:
   # The host and port where livestatus is listening.
   cmkHost: "localhost:6557"
 
-  # Which table to query
+  # Which livestatus table to query
   query: "services"
 
-  # The columns of data you want to retrieve
-  columns: ["host_name", "description", "state", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"]
+  # The columns of data you want to retrieve. At a minimum, the following fields must be included:
+  # ["host_name", "display_name", "state",  "plugin_output", "perf_data"]
+  columns: ["host_name", "display_name", "state", "plugin_output", "long_plugin_output", "percent_state_change", "perf_data"]
 
   # (Optional) The filter string to apply to the query.
   # Ex. (state = 2) or (description ~ CPU)
-  filter: ""
+  #filter: ["checks_enabled = 1", "host_state = 0"]
 
   # Whether or not to split up the perfdata into individual metrics. This will create additional fields such as
-  # [cpu][value], [cpu][min], [cpu][max], etc. for each parameter in the performance data.
-  metrics: true
+  # [cpu][value], [cpu][min], [cpu][max], etc. for each parameter in the performance data. Default is true.
+  #metrics: true
 
+  # If enabled, only perfdata for the specified services will be reported. Default is to include metrics for all services.
+  #metrics_allow: ["CPU Utilization", "Disk IO", "Memory", "Interface"]
+  
+  # If enabled, perfdata for the specified services will not be reported. Default is to include metrics for all services.
+  #metrics_block: ["Uptime", "System Time", "Check_MK", "Log"]
+  
+  # Whether to report just the 'value' field of the perfdata metrics, or whether to include the min / max / warn / crit
+  # fields as well. Default is true.
+  #metrics_value_only: true

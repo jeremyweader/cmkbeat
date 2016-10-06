@@ -112,9 +112,9 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 				or, _ := strconv.Atoi(strings.TrimPrefix(f, "Or: "))
 				q.Or(or)
 			} else {
-				if len(f) > 1 {
+//				if len(f) > 1 {
 					q.Filter(f)
-				}
+//				}
 			}
 		}
 	}
@@ -152,90 +152,70 @@ func (bt *Cmkbeat) lsQuery(lshost string, beatname string) error {
 		}
 		
 		if metrics {
-			var perf_data string
-			perf_data = colData["perf_data"]
-			var sName string
-			sName = colData["display_name"]
-			if len(perf_data) > 0 {
-
-				var perfObjMap map[string]map[string]map[string]string
-				var perfDataSplit []string
-
-				perfDataSplit = strings.Split(perf_data, " ")
-				perfObjMap = make(map[string]map[string]map[string]string)
-				perfObjMap[sName] = make(map[string]map[string]string)
-				for _, perfObj := range perfDataSplit {
-					var perfObjSplit []string
-					var dataSplit []string
-					if len(perfObj) > 0 {
-						perfObjSplit = strings.Split(perfObj, "=")
-						if len(perfObjSplit) == 2 {
-							item := perfObjSplit[0]
-							data := perfObjSplit[1]
-							if len(data) > 0 {
-								if strings.Contains(data, ";") {
-									dataSplit = strings.Split(data, ";")
-									perfObjMap[sName][item] = make(map[string]string)
-									dsLen := len(dataSplit)
-									if dsLen >= 1 {
-										if len(dataSplit[0]) > 0 {
-											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindString(dataSplit[0])
-											if len(num) > 0 {
-												perfObjMap[sName][item]["value"] = num
-											}
-										}
-									}
-									if dsLen >= 2 {
-										if len(dataSplit[1]) > 0 {
-											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindString(dataSplit[1])
-											if len(num) > 0 {
-												perfObjMap[sName][item]["min"] = num
-											}
-										}
-									}
-									if dsLen >= 3 {
-										if len(dataSplit[2]) > 0 {
-											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindString(dataSplit[2])
-											if len(num) > 0 {
-												perfObjMap[sName][item]["max"] = num
-											}
-										}
-									}
-									if dsLen >= 4 {
-										if len(dataSplit[3]) > 0 {
-											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindString(dataSplit[3])
-											if len(num) > 0 {
-												perfObjMap[sName][item]["warn"] = num
-											}
-										}
-									}
-									if dsLen >= 5 {
-										if len(dataSplit[4]) > 0 {
-											re := regexp.MustCompile("[0-9\\.]+")
-											num := re.FindString(dataSplit[4])
-											if len(num) > 0 {
-												perfObjMap[sName][item]["crit"] = num
-											}
-										}
-									}
-								} else {
-									perfObjMap[sName][item] = make(map[string]string)
-									re := regexp.MustCompile("[0-9\\.]+")
-									num := re.FindString(data)
-									if len(num) > 0 {
-										perfObjMap[sName][item]["value"] = num
-									}
-								}
-							} 
-						}
-					} 
-				}
-				event["metrics"] = perfObjMap
-			} 
+            var allow bool = true
+            if len(bt.config.MetricsAllow) > 0 {
+                allow = false
+                for _, a := range bt.config.MetricsAllow {
+                    if a == colData["display_name"] {
+                        logp.Info("Allowing metric: %s", a)
+                        allow = true
+                    }
+                }
+            }
+             if len(bt.config.MetricsBlock) > 0 {
+                for _, a := range bt.config.MetricsBlock {
+                    if a == colData["display_name"] {
+                        logp.Info("Blocking metric: %s", a)
+                        allow = false
+                    }
+                }
+            }
+            if allow {
+                serviceMap := common.MapStr{}
+                var perf_data string
+                perf_data = colData["perf_data"]
+                var sName string = colData["display_name"]
+                var uName string = strings.Replace(sName, " ", "_", -1)
+                if len(perf_data) > 0 {
+                    var perfDataSplit []string
+    
+                    perfDataSplit = strings.Split(perf_data, " ")
+                    for _, perfObj := range perfDataSplit {
+                        var perfObjSplit []string
+                        var dataSplit []string
+                        if len(perfObj) > 0 {
+                            perfObjSplit = strings.Split(perfObj, "=")
+                            if len(perfObjSplit) == 2 {
+                                item := perfObjSplit[0]
+                                data := perfObjSplit[1]
+                                if len(data) > 0 {
+                                    var num string
+                                    if strings.Contains(data, ";") {
+                                        dataSplit = strings.Split(data, ";")
+                                        dsLen := len(dataSplit)
+                                        if dsLen >= 1 {
+                                            if len(dataSplit[0]) > 0 {
+                                                re := regexp.MustCompile("[0-9\\.]+")
+                                                num = re.FindString(dataSplit[0])
+                                            }
+                                        }
+                                    } else {
+                                        re := regexp.MustCompile("[0-9\\.]+")
+                                        num = re.FindString(data)
+                                    }
+                                    mItem := common.MapStr{
+                                        item:   num,
+                                    }
+                                    serviceMap = common.MapStrUnion(serviceMap, mItem)
+                                } 
+                            }
+                        } 
+                    }
+                    event["metrics"] = common.MapStr{
+                        uName:  serviceMap,
+                    }
+                }
+            }
 		} 
 		bt.client.PublishEvent(event)
 		numRecords++
