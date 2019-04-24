@@ -13,7 +13,7 @@ import (
 	"github.com/elastic/beats/libbeat/publisher"
 
 	"github.com/jeremyweader/cmkbeat/config"
-	"github.com/jeremyweader/go-livestatus"
+	"github.com/vbatoufflet/go-livestatus"
 )
 
 type Cmkbeat struct {

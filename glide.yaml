@@ -6,4 +6,4 @@ import:
   - libbeat/common
   - libbeat/logp
   - libbeat/publisher
-- package: github.com/jeremyweader/go-livestatus
+- package: github.com/vbatoufflet/go-livestatus
